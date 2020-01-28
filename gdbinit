@@ -207,6 +207,48 @@ define color_underline
     end
 end
 
+define printf_separator
+    set style enabled off
+    color $COLOR_SEPARATOR
+    if $arg0 == 7
+        printf $arg3, $arg4, $arg5, $arg6, $arg7, $arg8, $arg9
+    else
+        if $arg0 == 6
+            printf $arg3, $arg4, $arg5, $arg6, $arg7, $arg8
+        else
+            if $arg0 == 5
+                printf $arg3, $arg4, $arg5, $arg6, $arg7
+            else
+                if $arg0 == 4
+                    printf $arg3, $arg4, $arg5, $arg6
+                else
+                    if $arg0 == 3
+                        printf $arg3, $arg4, $arg5
+                    else
+                        if $arg0 == 2
+                            printf $arg3, $arg4
+                        else
+                            if $arg0 == 1
+                                printf $arg3
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    color $COLOR_SEPARATOR
+    color_bold
+    printf $arg1, "---------------------------------------------------------------------------------------------------------------------------------------"
+    if ($64BITS == 1)
+        printf "%s%s\n", "---------------------------------------------", $arg2
+    else
+        printf "%s%s\n", "", $arg2
+    end
+    color_reset
+    set style enabled on
+end
+
 # this way anyone can have their custom prompt - argp's idea :-)
 # can also be used to redefine anything else in particular the colors aka theming
 # just remap the color variables defined above
@@ -1499,27 +1541,15 @@ define ddump
     if $argc != 1
         help ddump
     else
-        color $COLOR_SEPARATOR
         if $ARM == 1
-            printf "[0x%08X]", $data_addr
+            printf_separator 2 "%.62s" "[data]" "[0x%08X]" $data_addr
         else
             if ($64BITS == 1)
-                printf "[0x%04X:0x%016lX]", $ds, $data_addr
+                printf_separator 3 "%.47s" "[data]" "[0x%04X:0x%016lX]" $ds $data_addr
             else
-                printf "[0x%04X:0x%08X]", $ds, $data_addr
+                printf_separator 3 "%.55s" "[data]" "[0x%04X:0x%08X]" $ds $data_addr
             end
         end
-
-        color $COLOR_SEPARATOR
-        printf "------------------------"
-        printf "-------------------------------"
-        if ($64BITS == 1)
-            printf "-------------------------------------"
-        end
-        color_bold
-        color $COLOR_SEPARATOR
-        printf "[data]\n"
-        color_reset
         set $_count = 0
         while ($_count < $arg0)
             set $_i = ($_count * 0x10)
@@ -2026,41 +2056,21 @@ end
 set $displayobjectivec = 0
 
 define context
-    color $COLOR_SEPARATOR
     if $SHOWCPUREGISTERS == 1
-        printf "----------------------------------------"
-        printf "----------------------------------"
-        if ($64BITS == 1)
-            printf "---------------------------------------------"
-        end
-        color $COLOR_SEPARATOR
-        color_bold
-        printf "[regs]\n"
-        color_reset
+        printf_separator 0 "%.74s" "[regs]"
         reg
         color $CYAN
     end
     if $SHOWSTACK == 1
-        color $COLOR_SEPARATOR
         if $ARM == 1
-       printf "[0x%08X]", $sp
+            printf_separator 2 "%.61s" "[stack]" "[0x%08X]" $sp
         else
-        if ($64BITS == 1)
-                printf "[0x%04X:0x%016lX]", $ss, $rsp
-        else
-            printf "[0x%04X:0x%08X]", $ss, $esp
+            if ($64BITS == 1)
+                printf_separator 3 "%.46s" "[stack]" "[0x%04X:0x%016lX]" $ss $rsp
+            else
+                printf_separator 3 "%.54s" "[stack]" "[0x%04X:0x%08X]" $ss $esp
+            end
         end
-    end
-        color $COLOR_SEPARATOR
-        printf "-------------------------"
-        printf "-----------------------------"
-        if ($64BITS == 1)
-            printf "-------------------------------------"
-        end
-        color $COLOR_SEPARATOR
-        color_bold
-        printf "[stack]\n"
-        color_reset
         set $context_i = $CONTEXTSIZE_STACK
         while ($context_i > 0)
             set $context_t = $sp + 0x10 * ($context_i - 1)
@@ -2096,30 +2106,14 @@ define context
         # and now display it or not (we have no interest in having the info displayed after the call)
         if $__byte1 == 0xE8
             if $displayobjectivec == 1
-                color $COLOR_SEPARATOR
-                printf "--------------------------------------------------------------------"
-                if ($64BITS == 1)
-                    printf "---------------------------------------------"
-                end
-                color $COLOR_SEPARATOR
-                color_bold
-                printf "[ObjectiveC]\n"
-                color_reset
+                printf_separator 0 "%.68s" "[ObjectiveC]"
                 color $BLACK
                 x/s $objectivec
             end
             set $displayobjectivec = 0
         end
         if $displayobjectivec == 1
-            color $COLOR_SEPARATOR
-            printf "--------------------------------------------------------------------"
-            if ($64BITS == 1)
-                printf "---------------------------------------------"
-            end
-            color $COLOR_SEPARATOR
-            color_bold
-            printf "[ObjectiveC]\n"
-            color_reset
+            printf_separator 0 "%.68s" "[ObjectiveC]"
             color $BLACK
             x/s $objectivec
         end
@@ -2131,15 +2125,7 @@ define context
         datawin
     end
 
-    color $COLOR_SEPARATOR
-    printf "--------------------------------------------------------------------------"
-    if ($64BITS == 1)
-        printf "---------------------------------------------"
-    end
-    color $COLOR_SEPARATOR
-    color_bold
-    printf "[code]\n"
-    color_reset
+    printf_separator 0 "%.74s" "[code]"
     set $context_i = $CONTEXTSIZE_CODE
     if ($context_i > 0)
         if ($SETCOLOR1STLINE == 1)
@@ -2165,15 +2151,7 @@ define context
         x /i
         set $context_i--
     end
-    color $COLOR_SEPARATOR
-    printf "----------------------------------------"
-    printf "----------------------------------------"
-    if ($64BITS == 1)
-        printf "---------------------------------------------\n"
-    else
-        printf "\n"
-    end
-    color_reset
+    printf_separator 0 "%.80s" ""
 end
 document context
 Syntax: context
