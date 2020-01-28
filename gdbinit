@@ -1472,6 +1472,7 @@ end
 
 
 define hexdump
+    set style enabled off
     if $argc == 1
         hexdump_aux $arg0
     else
@@ -1486,6 +1487,7 @@ define hexdump
             help hexdump
         end
     end
+    set style enabled on
 end
 document hexdump
 Syntax: hexdump ADDR <NR_LINES>
