@@ -214,7 +214,7 @@ source ~/.gdbinit.local
 
 # can't use the color functions because we are using the set command
 if $COLOREDPROMPT == 1
-	set prompt \033[31mgdb$ \033[0m
+	set prompt \001\033[31m\002gdb$ \001\033[0m\002
 end
 
 # Initialize these variables else comparisons will fail for coloring
