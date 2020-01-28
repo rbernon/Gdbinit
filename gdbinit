@@ -1208,6 +1208,7 @@ end
 
 
 define reg
+    set style enabled off
     if $ARM == 1
         regarm
         if ($SHOWREGCHANGES == 1)
@@ -1271,6 +1272,7 @@ define reg
             end
         end
     end
+    set style enabled on
 end
 document reg
 Syntax: reg
